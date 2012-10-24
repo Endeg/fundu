@@ -1,4 +1,4 @@
 fundu
 =====
 
-Little tclispish scripting language I'm making for fun
+Little tclispish scripting language I'm making in FPC for fun.
