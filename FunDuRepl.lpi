@@ -33,12 +33,41 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <Units Count="1">
+    <RequiredPackages Count="1">
+      <Item1>
+        <PackageName Value="LCL"/>
+      </Item1>
+    </RequiredPackages>
+    <Units Count="6">
       <Unit0>
         <Filename Value="FunDuRepl.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="FunDuRepl"/>
       </Unit0>
+      <Unit1>
+        <Filename Value="config.inc"/>
+        <IsPartOfProject Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="FunUtils.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="FunUtils"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="Parser.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Parser"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="StandartLib.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="StandartLib"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="fundu.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="FunDu"/>
+      </Unit5>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
