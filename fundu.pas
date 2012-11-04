@@ -11,13 +11,14 @@ type
   TEnv = class;
   TAtom = class;
   TStrAtom = class;
+  TSymbolAtom = class;
   TListAtom = class;
   TNativeFunction = class;
   TDict = class;
 
   TDictItem = class;
 
-  TAtomType = (atStr, valInt, valFloat, valList, valDict, valNativeFunction);
+  TAtomType = (atStr, atSymbol, atInt, atFloat, atList, atDict, atNativeFunction);
   TNativeFunctionPointer = function(env: TEnv; args: TListAtom): TAtom;
 
   TEnv = class
@@ -36,11 +37,11 @@ type
 
   TAtom = class
   private
-    _id: integer;
+    _id: Integer;
     _type: TAtomType;
   public
     property AtomType: TAtomType read _type;
-    property Id: integer read _id;
+    property Id: Integer read _id;
 
     function StrValue: String; virtual;
     function Eval(env: TEnv): TAtom; virtual;
@@ -57,8 +58,18 @@ type
   public
     function StrValue: String; override;
 
+    constructor Create(AType: TAtomType);
     constructor Create(AStr: String);
     function Copy: TAtom; override;
+  end;
+
+  TSymbolAtom = class(TStrAtom)
+  private
+    _hash: Longint;
+  public
+    constructor Create(AStr: String);
+    function Eval(env: TEnv): TAtom; override;
+    property HashValue: Longint read _hash;
   end;
 
   TListAtom = class(TAtom)
@@ -91,11 +102,12 @@ type
   private
     _items: TFPList;
 
+    function FindItem(AName: String; AHash: Longint): TDictItem;
     function FindItem(AName: String): TDictItem;
-
   public
     constructor Create;
     procedure Put(AName: String; AValue: TAtom);
+    function Get(AName: String; AHash: Longint): TAtom;
     function Get(AName: String): TAtom;
   end;
 
@@ -115,7 +127,7 @@ type
 
 var
   Atoms: TFPList;
-  IdCounter: integer = 0;
+  IdCounter: Integer = 0;
 
 procedure ShowDebugInfo();
 
@@ -193,7 +205,7 @@ constructor TAtom.Create(AType: TAtomType);
 begin
   _type := AType;
   _id := IdCounter;
-  inc(IdCounter);
+  Inc(IdCounter);
   writeln('Creating atom: ', _type, '; Id: ', _id);
   //writeln('Creating ', _type);
 
@@ -226,6 +238,11 @@ begin
 end;
 
 {--== TStrAtom implementation==--}
+constructor TStrAtom.Create(AType: TAtomType);
+begin
+  inherited Create(AType);
+end;
+
 constructor TStrAtom.Create(AStr: String);
 begin
   inherited Create(atStr);
@@ -242,10 +259,30 @@ begin
   Result := TAtom(TStrAtom.Create(_str));
 end;
 
+{--== TSymbolAtom implementation==--}
+constructor TSymbolAtom.Create(AStr: String);
+begin
+  inherited Create(atSymbol);
+  _str := AStr;
+  _hash := hashString(AStr);
+end;
+
+function TSymbolAtom.Eval(env: TEnv): TAtom;
+var
+  FoundAtom: TAtom;
+begin
+  FoundAtom := env.MainScope.Get(StrValue, HashValue);
+  if Assigned(FoundAtom) then
+    Result := FoundAtom //Copy?
+  else
+    Result := nil;
+    //TODO: error message here
+end;
+
 {--== TListAtom implementation==--}
 constructor TListAtom.Create;
 begin
-  inherited Create(valList);
+  inherited Create(atList);
   _list := TFPList.Create;
 end;
 
@@ -303,7 +340,7 @@ begin
     if Found <> nil then
     begin
       case Found.AtomType of
-        valNativeFunction: Result := TNativeFunction(Found).Exec(env, Self);
+        atNativeFunction: Result := TNativeFunction(Found).Exec(env, Self);
       end;
       {if Evaluated <> nil then Result := Evaluated.Copy
       else Result := nil;}
@@ -331,7 +368,7 @@ end;
 {--== TNativeFunction implementation==--}
 constructor TNativeFunction.Create(AFun: TNativeFunctionPointer);
 begin
-  inherited Create(valNativeFunction);
+  inherited Create(atNativeFunction);
   _fun := AFun;
 end;
 
@@ -360,7 +397,7 @@ end;
 {--== TDict implementation==--}
 constructor TDict.Create;
 begin
-  inherited Create(valDict);
+  inherited Create(atDict);
 
   _items := TFPList.Create;
 end;
@@ -379,35 +416,52 @@ begin
   end;
 end;
 
-function TDict.Get(AName: String): TAtom;
+function TDict.Get(AName: String; AHash: Longint): TAtom;
 var
-  foundItem: TDictItem;
+  FoundItem: TDictItem;
 begin
-  foundItem := FindItem(AName);
-  if foundItem <> nil then
-    Result := foundItem.Value
+  FoundItem := FindItem(AName, AHash);
+  if FoundItem <> nil then
+    Result := FoundItem.Value
   else
     Result := nil;
 end;
 
-function TDict.FindItem(AName: String): TDictItem;
+function TDict.Get(AName: String): TAtom;
+var
+  FoundItem: TDictItem;
+begin
+  FoundItem := FindItem(AName);
+  if Assigned(FoundItem) then
+    Result := FoundItem.Value
+  else
+    Result := nil;
+end;
+
+function TDict.FindItem(AName: String; AHash: Longint): TDictItem;
 var
   i: Integer;
-  findHash: Longint;
 begin
   Result := nil;
-  findHash := hashString(AName);
-  for i := 0 to _items.Count - 1 do
+  for i := 0 to Pred(_items.Count) do
   begin
     with TDictItem(_items[i]) do
     begin
-      if (findHash = Hash) and (AName = Name) then
+      if (AHash = Hash) and (AName = Name) then
       begin
         Result := TDictItem(_items[i]);
         break;
       end;
     end;
   end;
+end;
+
+function TDict.FindItem(AName: String): TDictItem;
+var
+  findHash: Longint;
+begin
+  findHash := hashString(AName);
+  Result := FindItem(AName, findHash);
 end;
 
 {--== TDictItem implementation==--}
