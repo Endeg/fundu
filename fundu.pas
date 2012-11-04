@@ -276,7 +276,7 @@ begin
     Result := FoundAtom //Copy?
   else
     Result := nil;
-    //TODO: error message here
+  //TODO: error message here
 end;
 
 {--== TListAtom implementation==--}
@@ -289,10 +289,7 @@ end;
 destructor TListAtom.Destroy;
 var
   i: Integer;
-
 begin
-  //writeln('destroying list atom');
-
   for i := 0 to Pred(_list.Count) do
     TAtom(_list.Items[i]).Free;
 
@@ -329,26 +326,19 @@ end;
 
 function TListAtom.Eval(env: TEnv): TAtom;
 var
-  Head, Found, Evaluated: TAtom;
+  Head, Evaluated: TAtom;
 begin
-  //writeln('TListAtom.Eval');
   Result := nil;
   Head := Get(0);
-  if (Head <> nil) and (Head.AtomType = atStr) then
+  if (Assigned(Head)) and (Head.AtomType = atSymbol) then
   begin
-    Found := TAtom(env.MainScope.Get(Head.StrValue));
-    if Found <> nil then
-    begin
-      case Found.AtomType of
-        atNativeFunction: Result := TNativeFunction(Found).Exec(env, Self);
-      end;
-      {if Evaluated <> nil then Result := Evaluated.Copy
-      else Result := nil;}
+    Evaluated := Head.Eval(env);
 
-    end else
-    begin
-      writeln('Enable to find native function named "', Head.StrValue, '"');
-    end;
+    if Assigned(Evaluated) then
+
+      case Evaluated.AtomType of
+        atNativeFunction: Result := TNativeFunction(Evaluated).Exec(env, Self);
+      end;
   end;
 end;
 

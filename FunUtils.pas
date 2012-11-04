@@ -170,7 +170,7 @@ var
 begin
   stack := TStack.Create;
   root := TListAtom.Create;
-  root.Add(TStrAtom.Create('do'));
+  root.Add(TSymbolAtom.Create('do'));
   current := root;
 
   with TParser.Create(code) do
@@ -189,6 +189,11 @@ begin
         end;
 
         tcSymbol:
+        begin
+          TListAtom(current).Add(TSymbolAtom.Create(Tocken));
+        end;
+
+        tcString:
         begin
           TListAtom(current).Add(TStrAtom.Create(Tocken));
         end;

@@ -5,7 +5,7 @@ unit Parser;
 interface
 
 type
-  TTockenType = (tcBracketOpen, tcBracketClose, tcSymbol);
+  TTockenType = (tcBracketOpen, tcBracketClose, tcSymbol, tcString);
 
   TParser = class
   private
@@ -129,7 +129,7 @@ begin
     end else if _raw[_pos] = QUOTE then
     begin
       _tocken := HandleString;
-      _tockenType := tcSymbol;
+      _tockenType := tcString;
       break;
     end else if CharIn(_raw[_pos], WHITESPACE) then
     begin
