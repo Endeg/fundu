@@ -9,23 +9,36 @@ uses
   FunDu;
 
 var
-  t: TEnv;
-  strIn: String;
-  evaluatedAtom: TAtom;
+  Env: TEnv;
+  StrIn: String;
+  EvaluatedAtom: TAtom;
+  Done: Boolean;
+
+  function FunExit(env: TEnv; args: TListAtom): TAtom;
+  begin
+    Done := True;
+    Result := nil;
+  end;
 
 begin
-  t := TEnv.Create;
-  InitStandartLib(t);
+  Done := False;
 
-  while True do
+  Env := TEnv.Create;
+  InitStandartLib(Env);
+  RegFunction(Env, 'exit', @FunExit);
+
+  while not Done do
   begin
-    readln(strIn);
-    evaluatedAtom := t.EvalCode(strIn);
-    if (evaluatedAtom <> nil) then begin
-      writeln(evaluatedAtom.StrValue);
-      evaluatedAtom.Free
+    readln(StrIn);
+    EvaluatedAtom := Env.EvalCode(StrIn);
+    if (EvaluatedAtom <> nil) then
+    begin
+      writeln(EvaluatedAtom.StrValue);
+      EvaluatedAtom.Free;
     end
     else
       writeln('nil');
   end;
+
+  Env.Free;
 end.

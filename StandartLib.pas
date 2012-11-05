@@ -26,18 +26,15 @@ function FunDo(env: TEnv; args: TListAtom): TAtom;
 var
   i: Integer;
 begin
-  write('Standart.FunDo');
-  if (args <> nil) then writeln(args.StrValue);
   Result := nil;
-  if args = nil then exit;
+  if args = nil then
+    exit;
 
-  for i := 0 to args.Atoms.Count - 1 do
+  for i := 0 to Pred(args.Atoms.Count) do
   begin
     with TAtom(args.Atoms.Items[i]) do
     begin
-      writeln('FunDo:  preEval');
       Result := Eval(env);
-      writeln('FunDo: postEval');
     end;
   end;
 end;
@@ -45,22 +42,21 @@ end;
 function FunPrint(env: TEnv; args: TListAtom): TAtom;
 var
   i: Integer;
-  CurrentAtom: TAtom;
+  EvaluatedAtom: TAtom;
 begin
-  write('Standart.Print');
-  if (args <> nil) then writeln(args.StrValue);
   Result := nil;
-  if args = nil then exit;
+  if args = nil then
+    exit;
 
   if args.Atoms.Count > 1 then
   begin
-    for i := 1 to args.Atoms.Count - 1 do
+    for i := 1 to Pred(args.Atoms.Count) do
     begin
       with TAtom(args.Atoms.Items[i]) do
       begin
-        CurrentAtom := Eval(env);
-        if CurrentAtom <> nil then
-          Write(CurrentAtom.StrValue)
+        EvaluatedAtom := Eval(env);
+        if Assigned(EvaluatedAtom) then
+          Write(EvaluatedAtom.StrValue)
         else
           Write('nil');
       end;
