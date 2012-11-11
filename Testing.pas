@@ -23,7 +23,7 @@ type
   end;
 
   TPlainProc = procedure;
-  TTestProc = function(AName: string): TTestResult;
+  TTestProc = function(AName: String): TTestResult;
 
 
 

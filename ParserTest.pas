@@ -83,7 +83,7 @@ begin
       exit(Fail(AName, 'Wrong tocken type'));
 
     if not Finished then
-      exit(Fail(AName, 'arsing not finished'));
+      exit(Fail(AName, 'Parsing not finished'));
   end;
 
   exit(Success(AName));
