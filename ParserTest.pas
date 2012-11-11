@@ -1,6 +1,6 @@
 unit ParserTest;
 
-{$mode objfpc}{$H+}
+{$I config.inc}
 
 interface
 

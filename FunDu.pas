@@ -125,7 +125,7 @@ type
     property Value: TAtom read _value write _value;
   end;
 
-{$IFDEF DEBUG_MODE}
+{$IFDEF DEBUG_INFO}
 var
   Atoms: TFPList;
   IdCounter: Integer = 0;
@@ -470,7 +470,7 @@ begin
 end;
 
 begin
-{$IFDEF DEBUG_MODE}
+{$IFDEF DEBUG_INFO}
   Atoms := TFPList.Create;
 {$ENDIF}
 end.

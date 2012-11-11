@@ -33,14 +33,14 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <Units Count="4">
+    <Units Count="7">
       <Unit0>
         <Filename Value="FunDuTest.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="FunDuTest"/>
       </Unit0>
       <Unit1>
-        <Filename Value="testing.pas"/>
+        <Filename Value="Testing.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Testing"/>
       </Unit1>
@@ -50,10 +50,24 @@
         <UnitName Value="Parser"/>
       </Unit2>
       <Unit3>
-        <Filename Value="parsertest.pas"/>
+        <Filename Value="ParserTest.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ParserTest"/>
       </Unit3>
+      <Unit4>
+        <Filename Value="AtomTest.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="AtomTest"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="fundu.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="FunDu"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="config.inc"/>
+        <IsPartOfProject Value="True"/>
+      </Unit6>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
