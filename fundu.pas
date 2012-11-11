@@ -125,17 +125,19 @@ type
     property Value: TAtom read _value write _value;
   end;
 
+{$IFDEF DEBUG_MODE}
 var
   Atoms: TFPList;
   IdCounter: Integer = 0;
 
 procedure ShowDebugInfo();
-
+{$ENDIF}
 implementation
 
 uses
   FunUtils;
 
+{$IFDEF DEBUG_INFO}
 procedure ShowDebugInfo();
 var
   i: Integer;
@@ -148,6 +150,7 @@ begin
     end;
   writeln('---------------------------');
 end;
+{$ENDIF}
 
 {--== TEnv implementation ==--}
 function TEnv.LoadFile(fileName: String): String;
@@ -197,28 +200,33 @@ begin
     writeln('==========================================');
   end;//TODO: else some message
   root.Free;
-  ShowDebugInfo();
+  {$IFDEF DEBUG_INFO}ShowDebugInfo();{$ENDIF}
 end;
 
 {--== TAtom implementation==--}
 constructor TAtom.Create(AType: TAtomType);
 begin
   _type := AType;
+  {$IFDEF DEBUG_INFO}
   _id := IdCounter;
   Inc(IdCounter);
+  {$ENDIF}
   writeln('Creating atom: ', _type, '; Id: ', _id);
   //writeln('Creating ', _type);
-
+  {$IFDEF DEBUG_INFO}
   Atoms.Add(Pointer(Self));
   writeln('  Atoms total: ', Atoms.Count);
+  {$ENDIF}
+
 end;
 
 destructor TAtom.Destroy;
 begin
   writeln('Destroying atom: ', _type);
+  {$IFDEF DEBUG_INFO}
   Atoms.Remove(Pointer(Self));
   writeln('  Atoms total: ', Atoms.Count);
-
+  {$ENDIF}
   inherited Destroy;
 end;
 
@@ -366,7 +374,6 @@ function TNativeFunction.Exec(env: TEnv; args: TListAtom): TAtom;
 var
   Evaluated: TAtom;
 begin
-  //Write('TNativeFunction.Exec');
   if (args <> nil) then
     writeln(args.StrValue);
   Evaluated := _fun(env, args);
@@ -394,15 +401,15 @@ end;
 
 procedure TDict.Put(AName: String; AValue: TAtom);
 var
-  foundItem: TDictItem;
+  FoundItem: TDictItem;
 begin
-  foundItem := FindItem(AName);
-  if foundItem <> nil then
-    foundItem.Value := AValue
+  FoundItem := FindItem(AName);
+  if FoundItem <> nil then
+    FoundItem.Value := AValue
   else
   begin
-    foundItem := TDictItem.Create(AName, AValue);
-    _items.Add(foundItem);
+    FoundItem := TDictItem.Create(AName, AValue);
+    _items.Add(FoundItem);
   end;
 end;
 
@@ -448,10 +455,10 @@ end;
 
 function TDict.FindItem(AName: String): TDictItem;
 var
-  findHash: Longint;
+  FindHash: Longint;
 begin
-  findHash := hashString(AName);
-  Result := FindItem(AName, findHash);
+  FindHash := hashString(AName);
+  Result := FindItem(AName, FindHash);
 end;
 
 {--== TDictItem implementation==--}
@@ -462,7 +469,8 @@ begin
   _value := AValue;
 end;
 
-
 begin
+{$IFDEF DEBUG_MODE}
   Atoms := TFPList.Create;
+{$ENDIF}
 end.

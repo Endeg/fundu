@@ -5,7 +5,7 @@ unit Parser;
 interface
 
 type
-  TTockenType = (tcBracketOpen, tcBracketClose, tcSymbol, tcString);
+  TTockenType = (tcBracketOpen, tcBracketClose, tcSymbol, tcString, tcInt, tcFloat);
 
   TParser = class
   private

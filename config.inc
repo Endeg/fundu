@@ -1,2 +1,4 @@
-{$mode objfpc}
+{$MODE OBJFPC}
 {$H+}
+{$DEFINE DEBUG_MODE}
+
