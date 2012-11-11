@@ -5,19 +5,22 @@ unit AtomTest;
 interface
 
 uses
-  Classes, SysUtils, Testing, FunDu;
+  Classes, FunDu, SysUtils, Testing;
 
 procedure RunAtomTests;
 
 implementation
 
-function TestStrAtomCopy: boolean;
+function TestStrAtomCopy(AName: string): TTestResult;
 var
   OriginalAtom, CopyAtom: TAtom;
 begin
   OriginalAtom := TStrAtom.Create('foo');
   CopyAtom := OriginalAtom.Copy;
-  Exit(CopyAtom.StrValue = OriginalAtom.StrValue);
+  if (CopyAtom.StrValue <> OriginalAtom.StrValue) then
+    exit(Fail(AName, 'Atom copied incorrectly'))
+  else
+    exit(Success(AName));
 end;
 
 procedure RunAtomTests;

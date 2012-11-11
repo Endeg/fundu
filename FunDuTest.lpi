@@ -60,7 +60,7 @@
         <UnitName Value="AtomTest"/>
       </Unit4>
       <Unit5>
-        <Filename Value="fundu.pas"/>
+        <Filename Value="FunDu.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="FunDu"/>
       </Unit5>

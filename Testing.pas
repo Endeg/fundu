@@ -8,8 +8,24 @@ uses
   Classes, SysUtils;
 
 type
+  TTestResult = class
+  private
+    _message: String;
+    _name: String;
+    function _Errored: Boolean;
+  public
+    property Errored: Boolean read _Errored;
+    property Name: String read _name;
+    property Message: String read _message;
+
+    constructor Create(ATestName: String);
+    constructor Create(ATestName, AMessage: String);
+  end;
+
   TPlainProc = procedure;
-  TTestProc = function: Boolean;
+  TTestProc = function(AName: string): TTestResult;
+
+
 
 procedure EmptyProc;
 procedure RunTest(AName: String; ATest: TTestProc; AInit, ARelease: TPlainProc);
@@ -19,14 +35,46 @@ procedure InitTesting;
 procedure ReleaseTesting;
 procedure ShowResults;
 
+function Success(ATestName: String): TTestResult;
+function Fail(ATestName, AMessage: String): TTestResult;
+
+function PassedCount: Integer;
+function FailedCount: Integer;
+
 var
-  Total, Passed, Failed: Integer;
-  Results: TStrings;
+  Results: TFPList;
 
 implementation
 
 uses
   Crt;
+
+function TTestResult._Errored: Boolean;
+begin
+  Result := Length(_message) > 0;
+end;
+
+constructor TTestResult.Create(ATestName: String);
+begin
+  _name := ATestName;
+  _message := '';
+end;
+
+constructor TTestResult.Create(ATestName, AMessage: String);
+begin
+  Self.Create(ATestName);
+  _message := AMessage;
+end;
+
+function Success(ATestName: String): TTestResult;
+begin
+  Result := TTestResult.Create(ATestName);
+end;
+
+function Fail(ATestName, AMessage: String): TTestResult;
+begin
+  Result := TTestResult.Create(ATestName, AMessage);
+end;
 
 procedure EmptyProc;
 begin
@@ -37,17 +85,7 @@ procedure RunTest(AName: String; ATest: TTestProc; AInit, ARelease: TPlainProc);
 begin
   AInit;
 
-  if ATest() then
-  begin
-    Inc(Passed);
-    Results.Add(AName + ': Passed');
-  end else
-  begin
-    Inc(Failed);
-    Results.Add(AName + ': Failed');
-  end;
-
-  Inc(Total);
+  Results.Add(ATest(AName));
 
   ARelease;
 end;
@@ -59,10 +97,7 @@ end;
 
 procedure InitTesting;
 begin
-  Total := 0;
-  Passed := 0;
-  Failed := 0;
-  Results := TStringList.Create;
+  Results := TFPList.Create;
 end;
 
 procedure ReleaseTesting;
@@ -70,10 +105,24 @@ begin
   Results.Free;
 end;
 
-procedure WriteTestLine(AIndex: integer; ALine: string);
+procedure WriteTestLine(AIndex: Integer; AResult: TTestResult);
+var
+  OStr: String;
 begin
-  if (Pos('Failed', ALine) > 0) then TextColor(Red) else TextColor(Green);
-    writeln('    ', AIndex + 1, '. ', ALine, '.');
+  OStr := '    ' + IntToStr(AIndex + 1) + '. ' + AResult.Name;
+
+  if AResult.Errored then
+  begin
+    TextColor(Red);
+    OStr := OStr + ' - Failed: "' + AResult.Message + '".';
+  end
+  else
+  begin
+    TextColor(Green);
+    OStr := OStr + ' - Passed.';
+  end;
+
+  writeln(OStr);
 end;
 
 procedure ShowResultLine;
@@ -82,7 +131,10 @@ begin
 
   writeln;
   writeln('-------------------------------------------');
-  if (Failed > 0) then TextColor(Red) else TextColor(Green);
+  if (FailedCount > 0) then
+    TextColor(Red)
+  else
+    TextColor(Green);
   writeln('|||||||||||||||||||||||||||||||||||||||||||');
   TextColor(LightGray);
   writeln('-------------------------------------------');
@@ -99,17 +151,37 @@ begin
   writeln;
   for i := 0 to Pred(Results.Count) do
   begin
-    WriteTestLine(i, Results[i]);
+    WriteTestLine(i, TTestResult(Results[i]));
   end;
 
   ShowResultLine;
 
-  writeln('    Total tests: ', Total);
-  writeln('    Passed: ', Passed);
-  if Failed > 0 then
-    writeln('    Failed: ', Failed);
+  writeln('    Total tests: ', Results.Count);
+  writeln('    Passed: ', PassedCount);
+  if FailedCount > 0 then
+    writeln('    Failed: ', FailedCount);
   writeln;
   writeln('===========================================');
+end;
+
+function PassedCount: Integer;
+var
+  i: Integer;
+begin
+  Result := 0;
+  for i := 0 to Pred(Results.Count) do
+    if not TTestResult(Results[i]).Errored then
+      Inc(Result);
+end;
+
+function FailedCount: Integer;
+var
+  i: Integer;
+begin
+  Result := 0;
+  for i := 0 to Pred(Results.Count) do
+    if TTestResult(Results[i]).Errored then
+      Inc(Result);
 end;
 
 end.
