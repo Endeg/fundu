@@ -9,7 +9,7 @@ uses
 
 procedure InitStandartLib(env: TEnv);
 function FunDo(env: TEnv; args: TListAtom): TAtom;
-function FunPrint(env: TEnv; args: TListAtom): TAtom;
+function FunPrint(env: TEnv; args: TListAtom): TAtom; //TODO: move to other lib
 
 implementation
 

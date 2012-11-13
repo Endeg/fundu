@@ -371,11 +371,11 @@ begin
   FoundAtom := env.MainScope.Get(StrValue, HashValue);
   if Assigned(FoundAtom) then
     Result := FoundAtom //Copy?
-  else begin
+  else
+  begin
     Result := nil;
     env.RaiseError(SYMBOL_NOT_FOUND, 'Symbol not found: ' + StrValue);
   end;
-  //TODO: error message here
 end;
 
 {--== TListAtom implementation==--}
