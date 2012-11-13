@@ -7,6 +7,10 @@ interface
 uses
   Classes, SysUtils;
 
+const
+  SYNTAX_ERROR = 1;
+  SYMBOL_NOT_FOUND = 2;
+
 type
   TEnv = class;
   TAtom = class;
@@ -21,17 +25,29 @@ type
   TAtomType = (atStr, atSymbol, atInt, atFloat, atList, atDict, atNativeFunction);
   TNativeFunctionPointer = function(env: TEnv; args: TListAtom): TAtom;
 
+  TError = record
+    Raised: Boolean;
+    Message: String;
+    Code: Integer;
+  end;
+
   TEnv = class
   private
     _mainScope: TDict;
+    _error: Integer;
+    _errorMessage: String;
 
     function LoadFile(fileName: String): String;
+    function BuildSyntaxTree(code: String): TAtom;
   public
     constructor Create();
     procedure ExecFile(fileName: String);
     function EvalCode(code: String): TAtom;
+    procedure ResetError;
+    procedure RaiseError(AError: Integer; AMessage: String);
 
     property MainScope: TDict read _mainScope;
+    property Error: Integer read _error;
   end;
 
 
@@ -135,7 +151,7 @@ procedure ShowDebugInfo();
 implementation
 
 uses
-  FunUtils;
+  FunUtils, Parser;
 
 {$IFDEF DEBUG_INFO}
 procedure ShowDebugInfo();
@@ -150,9 +166,11 @@ begin
     end;
   writeln('---------------------------');
 end;
+
 {$ENDIF}
 
 {--== TEnv implementation ==--}
+//TODO: move that thing to Lib
 function TEnv.LoadFile(fileName: String): String;
 var
   f: TextFile;
@@ -170,11 +188,82 @@ begin
   CloseFile(f);
 end;
 
+function TEnv.BuildSyntaxTree(code: String): TAtom;
+var
+  stack: TStack;
+  root, current, newList: TListAtom;
+begin
+  stack := TStack.Create;
+  root := TListAtom.Create;
+  root.Add(TSymbolAtom.Create('do'));
+  current := root;
+
+  with TParser.Create(code) do
+  begin
+    while not Finished do
+    begin
+      Step;
+
+      case TockenType of
+        tcBracketOpen:
+        begin
+          newList := TListAtom.Create;
+          current.Add(newList);
+          stack.Push(current);
+          current := newList;
+        end;
+
+        tcSymbol:
+        begin
+          TListAtom(current).Add(TSymbolAtom.Create(Tocken));
+        end;
+
+        tcString:
+        begin
+          TListAtom(current).Add(TStrAtom.Create(Tocken));
+        end;
+
+        tcBracketClose:
+        begin
+          current := TListAtom(stack.Pop);
+          if current = nil then
+          begin
+            RaiseError(SYNTAX_ERROR, 'Something wrong with brackets1!');
+            break;
+          end;
+        end;
+      end;
+
+    end;
+    if stack.pop <> nil then
+      RaiseError(SYNTAX_ERROR, 'Something really wrong with brackets2!');
+
+    writeln('Syntax tree: ', root.StrValue);
+
+    Result := TAtom(root);
+
+    Free;
+  end;
+  stack.Free;
+end;
+
 constructor TEnv.Create();
 begin
   writeln('Creating toy env');
 
   _mainScope := TDict.Create;
+  ResetError;
+end;
+
+procedure TEnv.ResetError;
+begin
+  _error := 0;
+end;
+
+procedure TEnv.RaiseError(AError: Integer; AMessage: String);
+begin
+  _error := AError;
+  _errorMessage := AMessage;
 end;
 
 procedure TEnv.ExecFile(fileName: String);
@@ -192,15 +281,16 @@ var
 begin
   Result := nil;
   root := TListAtom(BuildSyntaxTree(code));
-  if root <> nil then
+  if (Error = 0) and (Assigned(root)) then
   begin
-
     writeln('==========================================');
     Result := root.Eval(Self);
     writeln('==========================================');
   end;//TODO: else some message
   root.Free;
-  {$IFDEF DEBUG_INFO}ShowDebugInfo();{$ENDIF}
+  {$IFDEF DEBUG_INFO}
+  ShowDebugInfo();
+  {$ENDIF}
 end;
 
 {--== TAtom implementation==--}
@@ -217,7 +307,6 @@ begin
   Atoms.Add(Pointer(Self));
   writeln('  Atoms total: ', Atoms.Count);
   {$ENDIF}
-
 end;
 
 destructor TAtom.Destroy;
@@ -282,8 +371,10 @@ begin
   FoundAtom := env.MainScope.Get(StrValue, HashValue);
   if Assigned(FoundAtom) then
     Result := FoundAtom //Copy?
-  else
+  else begin
     Result := nil;
+    env.RaiseError(SYMBOL_NOT_FOUND, 'Symbol not found: ' + StrValue);
+  end;
   //TODO: error message here
 end;
 

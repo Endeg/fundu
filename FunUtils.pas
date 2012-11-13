@@ -49,14 +49,10 @@ type
   end;
 
 procedure SwapItems(left, right: TListItem);
-function BuildSyntaxTree(code: String): TAtom;
 function hashString(AStr: String): Longint;
 procedure RegFunction(env: TEnv; AName: String; AFun: TNativeFunctionPointer);
 
 implementation
-
-uses
-  Parser;
 
 constructor TStack.Create;
 begin
@@ -160,67 +156,6 @@ begin
   tmp := left.Next;
   left.Next := right.Next;
   right.Next := tmp;
-end;
-
-
-function BuildSyntaxTree(code: String): TAtom;
-var
-  stack: TStack;
-  root, current, newList: TListAtom;
-begin
-  stack := TStack.Create;
-  root := TListAtom.Create;
-  root.Add(TSymbolAtom.Create('do'));
-  current := root;
-
-  with TParser.Create(code) do
-  begin
-    while not Finished do
-    begin
-      Step;
-
-      case TockenType of
-        tcBracketOpen:
-        begin
-          newList := TListAtom.Create;
-          current.Add(newList);
-          stack.Push(current);
-          current := newList;
-        end;
-
-        tcSymbol:
-        begin
-          TListAtom(current).Add(TSymbolAtom.Create(Tocken));
-        end;
-
-        tcString:
-        begin
-          TListAtom(current).Add(TStrAtom.Create(Tocken));
-        end;
-
-        tcBracketClose:
-        begin
-          current := TListAtom(stack.Pop);
-          if current = nil then
-          begin
-            writeln('Something wrong with brackets!');
-            break;
-          end;
-        end;
-      end;
-
-    end;
-    if stack.pop <> nil then
-      writeln('Something really wrong with brackets!');
-
-    writeln('Syntax tree: ', root.StrValue);
-
-    Result := TAtom(root);
-
-    Free;
-  end;
-
-  stack.Free;
 end;
 
 function hashString(AStr: String): Longint;

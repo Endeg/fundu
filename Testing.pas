@@ -1,6 +1,6 @@
 unit Testing;
 
-{$mode objfpc}{$H+}
+{$I config.inc}
 
 interface
 
@@ -45,9 +45,6 @@ var
   Results: TFPList;
 
 implementation
-
-uses
-  Crt;
 
 function TTestResult._Errored: Boolean;
 begin
@@ -109,44 +106,36 @@ procedure WriteTestLine(AIndex: Integer; AResult: TTestResult);
 var
   OStr: String;
 begin
-  OStr := '    ' + IntToStr(AIndex + 1) + '. ' + AResult.Name;
+  OStr := '    ' + IntToStr(AIndex + 1) + '. ';
 
   if AResult.Errored then
-  begin
-    TextColor(Red);
-    OStr := OStr + ' - Failed: "' + AResult.Message + '".';
-  end
+
+    OStr := OStr + '[FAILED] ' + AResult.Name + ': "' + AResult.Message + '".'
+
   else
-  begin
-    TextColor(Green);
-    OStr := OStr + ' - Passed.';
-  end;
+
+    OStr := OStr + '[PASSED] ' + AResult.Name + '.';
+
 
   writeln(OStr);
 end;
 
 procedure ShowResultLine;
 begin
-  TextColor(LightGray);
-
   writeln;
   writeln('-------------------------------------------');
   if (FailedCount > 0) then
-    TextColor(Red)
+    writeln('|||THIS LINE IS RED||||||||||||||||||||||||')
   else
-    TextColor(Green);
-  writeln('|||||||||||||||||||||||||||||||||||||||||||');
-  TextColor(LightGray);
+    writeln('|||THIS LINE IS GREEN||||||||||||||||||||||');
   writeln('-------------------------------------------');
   writeln;
-
 end;
 
 procedure ShowResults;
 var
   i: Integer;
 begin
-  TextColor(LightGray);
   writeln('===========================================');
   writeln;
   for i := 0 to Pred(Results.Count) do
