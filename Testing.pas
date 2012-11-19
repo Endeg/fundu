@@ -109,13 +109,9 @@ begin
   OStr := '    ' + IntToStr(AIndex + 1) + '. ';
 
   if AResult.Errored then
-
     OStr := OStr + '[FAILED] ' + AResult.Name + ': "' + AResult.Message + '".'
-
   else
-
     OStr := OStr + '[PASSED] ' + AResult.Name + '.';
-
 
   writeln(OStr);
 end;

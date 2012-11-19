@@ -48,6 +48,7 @@ type
 
     property MainScope: TDict read _mainScope;
     property Error: Integer read _error;
+    property ErrorMessage: String read _errorMessage;
   end;
 
 
