@@ -78,6 +78,7 @@ type
     function StrValue: String; override;
 
     constructor Create(AIntValue: Integer);
+    constructor Create(AStrValue: String);
 
     function Copy: TAtom; override;
   end;
@@ -351,7 +352,13 @@ end;
 {--== TIntAtom implementation ==--}
 constructor TIntAtom.Create(AIntValue: Integer);
 begin
+  inherited Create(atInt);
   _int := AIntValue;
+end;
+
+constructor TIntAtom.Create(AStrValue: String);
+begin
+  Create(StrToInt(AStrValue));
 end;
 
 function TIntAtom.StrValue: String;
