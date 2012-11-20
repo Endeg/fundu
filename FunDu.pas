@@ -14,6 +14,7 @@ const
 type
   TEnv = class;
   TAtom = class;
+  TIntAtom = class;
   TStrAtom = class;
   TSymbolAtom = class;
   TListAtom = class;
@@ -67,6 +68,18 @@ type
     destructor Destroy; override;
 
     function Copy: TAtom; virtual;
+  end;
+
+  TIntAtom = class(TAtom)
+  private
+    _int: Integer;
+  public
+    property IntValue: Integer read _int write _int;
+    function StrValue: String; override;
+
+    constructor Create(AIntValue: Integer);
+
+    function Copy: TAtom; override;
   end;
 
   TStrAtom = class(TAtom)
@@ -335,7 +348,23 @@ begin
   Result := Copy;
 end;
 
-{--== TStrAtom implementation==--}
+{--== TIntAtom implementation ==--}
+constructor TIntAtom.Create(AIntValue: Integer);
+begin
+  _int := AIntValue;
+end;
+
+function TIntAtom.StrValue: String;
+begin
+  Result := IntToStr(_int);
+end;
+
+function TIntAtom.Copy: TAtom;
+begin
+  Result := TIntAtom.Create(_int);
+end;
+
+{--== TStrAtom implementation ==--}
 constructor TStrAtom.Create(AType: TAtomType);
 begin
   inherited Create(AType);

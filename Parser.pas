@@ -19,6 +19,7 @@ type
     procedure HandleWhitespace;
     procedure HandleComments;
     function HandleString: String;
+    function DetectNumber: TTockenType;
   public
     procedure Step;
     function Finished: Boolean;
@@ -40,6 +41,7 @@ const
   WHITESPACE: array[0..3] of Char = (chr(9), chr(10), chr(13), chr(32));
   ENDLINE: array[0..1] of Char = (chr(10), chr(13));
   COMMENTS: array[0..1] of Char = (';', '#');
+  NUMBER: array[0..9] of Char = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
 
 
 
@@ -110,6 +112,11 @@ begin
   Inc(_pos);
 end;
 
+function TParser.DetectNumber: TTockenType;
+begin
+  Result := tcSymbol;
+end;
+
 procedure TParser.Step;
 begin
   while not Finished do
@@ -137,7 +144,7 @@ begin
     end else
     begin
       _tocken := HandleWord;
-      _tockenType := tcSymbol; //TODO: add num check
+      _tockenType := DetectNumber; //TODO: add num check
       break;
     end;
   end;
