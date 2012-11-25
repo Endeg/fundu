@@ -41,23 +41,43 @@ const
   WHITESPACE: array[0..3] of Char = (chr(9), chr(10), chr(13), chr(32));
   ENDLINE: array[0..1] of Char = (chr(10), chr(13));
   COMMENTS: array[0..1] of Char = (';', '#');
-  NUMBER: array[0..9] of Char = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
-
+  NUMBER: array[0..11] of Char = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '-');
+  DECIMAL_SEPARATOR: Char = '.';
+  MINUS: Char = '-';
 
 
 function CharIn(c: Char; a: array of Char): Boolean;
 var
   i: Integer;
 begin
-  Result := False;
-  for i := 0 to length(a) - 1 do
-  begin
+  for i := 0 to pred(length(a)) do
     if c = a[i] then
-    begin
-      Result := True;
-      break;
-    end;
+      exit(True);
+
+  exit(False);
+end;
+
+function CountChar(AStr: String; ASymbol: Char): Integer;
+var
+  i: Integer;
+begin
+  Result := 0;
+  for i := 1 to Length(AStr) do
+    if AStr[i] = ASymbol then
+      Inc(Result);
+end;
+
+function ConsistOf(AStr: String; ASymbols: array of Char): Boolean;
+var
+  i: Integer;
+begin
+  for i := 1 to length(AStr) do
+  begin
+    if not CharIn(AStr[i], ASymbols) then
+      exit(False);
   end;
+
+  exit(True);
 end;
 
 function TParser.HandleBrackets: String;
@@ -113,8 +133,16 @@ begin
 end;
 
 function TParser.DetectNumber: TTockenType;
+var
+  i, TockenLeigth: Integer;
 begin
   Result := tcSymbol;
+
+  if ConsistOf(_tocken, NUMBER) then
+    Result := tcInt;
+
+  if (Result = tcInt) and (CountChar(_tocken, DECIMAL_SEPARATOR) = 1) then
+    Result := tcFloat;
 end;
 
 procedure TParser.Step;

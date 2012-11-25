@@ -8,7 +8,7 @@ uses
   Classes, Parser, SysUtils, Testing;
 
 const
-  WRONG_TOCKEN_TYPE = 'Wrong tocken type';
+  WRONG_TOCKEN_TYPE = 'Wrong tocken type: ';
   PARSING_NOT_FINISHED = 'Parsing not finished';
 
 procedure RunParserTests;
@@ -21,11 +21,11 @@ begin
   begin
     Step;
     if (TockenType <> tcString) or (Tocken <> 'foo') then
-      exit(Fail(AName, WRONG_TOCKEN_TYPE));
+      exit(Fail(AName, WRONG_TOCKEN_TYPE + Tocken));
 
     Step;
     if (TockenType <> tcSymbol) or (Tocken <> 'bar') then
-      exit(Fail(AName, WRONG_TOCKEN_TYPE));
+      exit(Fail(AName, WRONG_TOCKEN_TYPE + Tocken));
 
     if not Finished then
       exit(Fail(AName, PARSING_NOT_FINISHED));
@@ -40,23 +40,23 @@ begin
   begin
     Step;
     if (TockenType <> tcString) or (Tocken <> 'foo') then
-      exit(Fail(AName, WRONG_TOCKEN_TYPE));
+      exit(Fail(AName, WRONG_TOCKEN_TYPE + Tocken));
 
     Step;
     if (TockenType <> tcSymbol) or (Tocken <> 'bar') then
-      exit(Fail(AName, WRONG_TOCKEN_TYPE));
+      exit(Fail(AName, WRONG_TOCKEN_TYPE + Tocken));
 
     Step;
     if (TockenType <> tcInt) or (Tocken <> '12') then
-      exit(Fail(AName, WRONG_TOCKEN_TYPE));
+      exit(Fail(AName, WRONG_TOCKEN_TYPE + Tocken));
 
     Step;
     if (TockenType <> tcInt) or (Tocken <> '42') then
-      exit(Fail(AName, WRONG_TOCKEN_TYPE));
+      exit(Fail(AName, WRONG_TOCKEN_TYPE + Tocken));
 
     Step;
     if (TockenType <> tcFloat) or (Tocken <> '12.42') then
-      exit(Fail(AName, WRONG_TOCKEN_TYPE));
+      exit(Fail(AName, WRONG_TOCKEN_TYPE + Tocken));
 
     if not Finished then
       exit(Fail(AName, PARSING_NOT_FINISHED));
@@ -72,19 +72,19 @@ begin
   begin
     Step;
     if TockenType <> tcBracketOpen then
-      exit(Fail(AName, WRONG_TOCKEN_TYPE));
+      exit(Fail(AName, WRONG_TOCKEN_TYPE + Tocken));
 
     Step;
     if (TockenType <> tcString) or (Tocken <> 'foo') then
-      exit(Fail(AName, WRONG_TOCKEN_TYPE));
+      exit(Fail(AName, WRONG_TOCKEN_TYPE + Tocken));
 
     Step;
     if (TockenType <> tcSymbol) or (Tocken <> 'bar') then
-      exit(Fail(AName, WRONG_TOCKEN_TYPE));
+      exit(Fail(AName, WRONG_TOCKEN_TYPE + Tocken));
 
     Step;
     if TockenType <> tcBracketClose then
-      exit(Fail(AName, WRONG_TOCKEN_TYPE));
+      exit(Fail(AName, WRONG_TOCKEN_TYPE + Tocken));
 
     if not Finished then
       exit(Fail(AName, PARSING_NOT_FINISHED));
